@@ -3,7 +3,7 @@
 """
 Implementacja klienta API publicznych danych IMGW na licencji LGPL 3.0.
 
-Wersja 1.0 - 24 czerwca 2018.
+Wersja 1.1 - 24 czerwca 2018.
 Autor: [https://github.com/kowalpy|Marcin Kowalczyk]
 WWW: https://github.com/kowalpy/imgw_api_client
 
@@ -41,21 +41,26 @@ class ImgwApiClient(object):
             f.write(self.convert_contents_to_str())
             f.close()
         except Exception as e:
-            print "ERROR: %s" % e
+            print("ERROR: %s" % e)
 
     def return_data(self):
         return self.contents
 
     def convert_contents_to_str(self):
         cont_str = ""
+        is_first_csv_line = True
         for i in self.contents:
-            cont_str += i['station'] + "\n"
-            cont_str += i['format'] + "\n"
-            cont_str += i['data'] + "\n"
+            the_data = i['data']
+            if i['format'] == "csv":
+                if not is_first_csv_line:
+                    the_data = the_data[the_data.find("cisnienie") + 10:]
+                else:
+                    is_first_csv_line = False
+            cont_str += the_data
         return cont_str
 
     def print_data(self):
-        print self.convert_contents_to_str()
+        print(self.convert_contents_to_str())
 
     def read_ini_file(self, filepath="meteo.ini"):
         config = ConfigParser.RawConfigParser()
@@ -70,7 +75,7 @@ class ImgwApiClient(object):
 class RunImgwApiClient(ImgwApiClient):
     def __init__(self):
         super(RunImgwApiClient, self).__init__()
-        self.warn = "imgw_api_client 1.0 - https://github.com/kowalpy/imgw_api_client\n\n"
+        self.warn = "imgw_api_client 1.1 - https://github.com/kowalpy/imgw_api_client\n\n"
         self.warn += "Komunikat IMGW:\n"
         self.warn += "Korzystanie z serwisu oznacza zgode uzytkownika na przestrzeganie"
         self.warn += " postanowien regulaminu, dlatego tez kazdy uzytkownik zobowiazany"
